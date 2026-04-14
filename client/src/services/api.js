@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:3000/api",
+  baseURL: "https://thread-theory-backend-rfzw.onrender.com/api",
 });
 
 api.interceptors.request.use((config) => {
