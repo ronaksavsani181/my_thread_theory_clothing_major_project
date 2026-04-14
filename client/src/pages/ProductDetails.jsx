@@ -6,7 +6,7 @@ import { useCart } from "../context/useCart";
 import { useWishlist } from "../context/useWishlist";
 import { Star, Truck, ShieldCheck, Heart, X, Ruler, ThumbsUp, User } from "lucide-react";
 import VisualTryOnButton from "../components/VisualTryOnButton";
-import TryOnModal from "../components/visualTryOn/TryOnModal";
+import TryOnModal from "../components/VisualTryOn/TryOnModal";
 import ProductCard from "../components/ProductCard";
 
 export default function ProductDetails() {
