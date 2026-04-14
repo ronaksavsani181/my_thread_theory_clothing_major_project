@@ -1,0 +1,386 @@
+import { useState, useEffect } from "react";
+import { useCart } from "../context/useCart";
+import { useNavigate, Link } from "react-router-dom";
+import api from "../services/api";
+
+export default function Checkout() {
+  const { cartItems, totalAmount, clearCart } = useCart();
+  const navigate = useNavigate();
+
+  // 🟢 STEPPER STATE (1: Address, 2: Shipping, 3: Payment)
+  const [activeStep, setActiveStep] = useState(1);
+
+  const [couponCode, setCouponCode] = useState("");
+  const [discount, setDiscount] = useState(0);
+  const [shippingCost, setShippingCost] = useState(0);
+  const [finalAmount, setFinalAmount] = useState(totalAmount);
+  const [loading, setLoading] = useState(false);
+  const [shippingMethod, setShippingMethod] = useState("standard");
+  
+  const [address, setAddress] = useState({
+    fullName: "",
+    phone: "",
+    addressLine: "",
+    city: "",
+    pincode: "",
+  });
+
+  // 🟢 LUXURY TOAST STATE
+  const [toast, setToast] = useState({ show: false, message: "", type: "success" });
+
+  const showToast = (message, type = "success") => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast({ show: false, message: "", type: "success" }), 4000);
+  };
+
+  // Recalculate Final Amount
+  useEffect(() => {
+    setFinalAmount(totalAmount - discount + shippingCost);
+  }, [totalAmount, discount, shippingCost]);
+
+  // 🎟 APPLY COUPON
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) {
+      showToast("Please enter a valid code.", "error");
+      return;
+    }
+    try {
+      const res = await api.post("/coupons/validate", { code: couponCode, totalAmount });
+      setDiscount(res.data.discount);
+      showToast("Code applied successfully.");
+    } catch (error) {
+      showToast(error.response?.data?.message || "Invalid or expired code.", "error");
+    }
+  };
+
+  // ➡️ STEP 1 TO STEP 2
+  const handleContinueToShipping = () => {
+    if (!address.fullName || !address.phone || !address.addressLine || !address.city || !address.pincode) {
+      showToast("Please complete your delivery details.", "error");
+      return;
+    }
+    setActiveStep(2);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // ➡️ STEP 2 TO STEP 3
+  const handleContinueToPayment = () => {
+    if (shippingMethod === "express") setShippingCost(500);
+    else setShippingCost(0);
+    
+    setActiveStep(3);
+  };
+
+  // 💳 HANDLE FINAL PAYMENT
+  const handlePayment = async () => {
+    if (cartItems.length === 0) return showToast("Your bag is empty.", "error");
+
+    try {
+      setLoading(true);
+
+      const res = await api.post("/payments/create-order", { amount: finalAmount });
+      const razorpayOrder = res.data;
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: razorpayOrder.amount,
+        currency: "INR",
+        name: "Thread Theory", // Updated Brand Name
+        description: "Premium Collection Purchase",
+        order_id: razorpayOrder.id,
+        handler: async function (response) {
+          await api.post("/payments/update-status", {
+            razorpayOrderId: razorpayOrder.id,
+            razorpayPaymentId: response.razorpay_payment_id,
+            products: cartItems.map((item) => ({
+              productId: item._id,
+              quantity: item.qty,
+              price: item.price,
+            })),
+            address,
+          });
+
+          showToast("Payment successful! Order confirmed.");
+          clearCart();
+          setTimeout(() => navigate("/orders"), 1500);
+        },
+        theme: { color: "#0a0a0a" }, // Deep neutral black
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      console.error("Payment error:", error);
+      showToast("Secure payment failed. Please try again.", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // EMPTY STATE
+  if (cartItems.length === 0) {
+    return (
+      <div className="min-h-[80vh] flex flex-col items-center justify-center bg-white px-6 text-center font-sans">
+        <svg className="w-12 h-12 text-neutral-200 mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+        </svg>
+        <h2 className="text-2xl font-light tracking-wide text-neutral-900 mb-4 uppercase">Your Bag is Empty</h2>
+        <p className="text-sm font-light tracking-wide text-neutral-500 mb-10 max-w-md mx-auto leading-relaxed">
+          It looks like you haven't added any pieces to your bag yet.
+        </p>
+        <Link
+          to="/products"
+          className="group relative overflow-hidden border border-neutral-950 bg-white text-neutral-950 px-12 py-4 text-[10px] font-bold uppercase tracking-[0.25em] transition-all duration-500 hover:text-white"
+        >
+          <span className="relative z-10">Return to Shop</span>
+          <div className="absolute inset-0 h-full w-full scale-x-0 bg-neutral-950 transition-transform duration-500 ease-[0.25,1,0.5,1] group-hover:scale-x-100 origin-left"></div>
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white min-h-screen font-sans pb-32 relative selection:bg-neutral-200">
+      
+      {/* LUXURY TOAST NOTIFICATION */}
+      <div 
+        className={`fixed left-1/2 top-24 z-[100] flex w-[90%] max-w-sm -translate-x-1/2 transform items-center justify-center gap-3 rounded-sm p-4 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.15)] backdrop-blur-xl transition-all duration-500 ease-[0.25,1,0.5,1] pointer-events-none ${
+          toast.show ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"
+        } ${
+          toast.type === "error" ? "bg-white/95 border-l-4 border-red-500 text-neutral-800" : "bg-neutral-950/95 text-white"
+        }`}
+      >
+        <p className={`text-[10px] font-bold tracking-[0.25em] uppercase text-center ${toast.type === "error" ? "text-neutral-700" : "text-neutral-200"}`}>
+          {toast.message}
+        </p>
+      </div>
+
+      <div className="max-w-[85rem] mx-auto px-6 sm:px-8 lg:px-12 pt-24 lg:pt-32">
+        
+        {/* HEADER */}
+        <div className="mb-16 border-b border-neutral-200 pb-10 flex flex-col items-center text-center">
+          <h1 className="text-4xl md:text-5xl font-light tracking-wide uppercase text-neutral-900 mb-4">
+            Secure Checkout
+          </h1>
+          <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-neutral-400">
+            Complete your purchase in 3 steps
+          </p>
+        </div>
+
+        <div className="lg:grid lg:grid-cols-12 lg:gap-16 lg:items-start">
+          
+          {/* LEFT COLUMN: THE WIZARD */}
+          <div className="lg:col-span-7 mb-16 lg:mb-0 space-y-6">
+            
+            {/* ================= STEP 1: DELIVERY ================= */}
+            <div className={`border transition-all duration-500 ${activeStep === 1 ? "border-neutral-900 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.1)]" : "border-neutral-200 bg-neutral-50"}`}>
+              <div className="flex justify-between items-center p-6 sm:p-8">
+                <h2 className={`text-[10px] font-bold tracking-[0.25em] uppercase transition-colors ${activeStep === 1 ? "text-neutral-900" : "text-neutral-400"}`}>
+                  1. Delivery Details
+                </h2>
+                {activeStep > 1 && (
+                  <button onClick={() => setActiveStep(1)} className="text-[9px] font-bold tracking-[0.2em] uppercase text-neutral-900 hover:text-neutral-500 transition-colors border-b border-neutral-900 pb-0.5">Edit</button>
+                )}
+              </div>
+              
+              {activeStep === 1 && (
+                <div className="p-6 sm:p-8 pt-0 space-y-8 animate-fade-in-up">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+                    <div className="relative group">
+                      <label className="block text-[9px] font-bold tracking-[0.2em] uppercase text-neutral-500 mb-2 transition-colors group-focus-within:text-neutral-900">Full Name</label>
+                      <input type="text" className="w-full bg-white border border-neutral-300 py-3.5 px-4 text-sm font-light text-neutral-900 focus:outline-none focus:border-neutral-900 rounded-none transition-colors" placeholder="Jane Doe" value={address.fullName} onChange={(e) => setAddress({ ...address, fullName: e.target.value })} />
+                    </div>
+                    <div className="relative group">
+                      <label className="block text-[9px] font-bold tracking-[0.2em] uppercase text-neutral-500 mb-2 transition-colors group-focus-within:text-neutral-900">Phone Number</label>
+                      <input type="tel" className="w-full bg-white border border-neutral-300 py-3.5 px-4 text-sm font-light text-neutral-900 focus:outline-none focus:border-neutral-900 rounded-none transition-colors" placeholder="+91 98765 43210" value={address.phone} onChange={(e) => setAddress({ ...address, phone: e.target.value })} />
+                    </div>
+                  </div>
+                  <div className="relative group">
+                    <label className="block text-[9px] font-bold tracking-[0.2em] uppercase text-neutral-500 mb-2 transition-colors group-focus-within:text-neutral-900">Street Address</label>
+                    <input type="text" className="w-full bg-white border border-neutral-300 py-3.5 px-4 text-sm font-light text-neutral-900 focus:outline-none focus:border-neutral-900 rounded-none transition-colors" placeholder="Apartment, suite, unit, etc." value={address.addressLine} onChange={(e) => setAddress({ ...address, addressLine: e.target.value })} />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+                    <div className="relative group">
+                      <label className="block text-[9px] font-bold tracking-[0.2em] uppercase text-neutral-500 mb-2 transition-colors group-focus-within:text-neutral-900">City</label>
+                      <input type="text" className="w-full bg-white border border-neutral-300 py-3.5 px-4 text-sm font-light text-neutral-900 focus:outline-none focus:border-neutral-900 rounded-none transition-colors" placeholder="Surat" value={address.city} onChange={(e) => setAddress({ ...address, city: e.target.value })} />
+                    </div>
+                    <div className="relative group">
+                      <label className="block text-[9px] font-bold tracking-[0.2em] uppercase text-neutral-500 mb-2 transition-colors group-focus-within:text-neutral-900">Postal Code</label>
+                      <input type="text" className="w-full bg-white border border-neutral-300 py-3.5 px-4 text-sm font-light text-neutral-900 focus:outline-none focus:border-neutral-900 rounded-none transition-colors" placeholder="395007" value={address.pincode} onChange={(e) => setAddress({ ...address, pincode: e.target.value })} />
+                    </div>
+                  </div>
+                  <button onClick={handleContinueToShipping} className="mt-8 w-full md:w-auto bg-neutral-950 text-white px-10 py-4.5 text-[10px] font-bold uppercase tracking-[0.25em] hover:bg-neutral-800 transition-all duration-300 active:scale-[0.98]">
+                    Continue to Shipping
+                  </button>
+                </div>
+              )}
+              {activeStep > 1 && (
+                <div className="px-6 sm:px-8 pb-8 text-sm text-neutral-500 font-light tracking-wide leading-relaxed">
+                  {address.fullName} <br/>
+                  {address.addressLine}, {address.city}, {address.pincode} <br/>
+                  {address.phone}
+                </div>
+              )}
+            </div>
+
+            {/* ================= STEP 2: SHIPPING ================= */}
+            <div className={`border transition-all duration-500 ${activeStep === 2 ? "border-neutral-900 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.1)]" : "border-neutral-200 bg-neutral-50"}`}>
+              <div className="flex justify-between items-center p-6 sm:p-8">
+                <h2 className={`text-[10px] font-bold tracking-[0.25em] uppercase transition-colors ${activeStep === 2 ? "text-neutral-900" : "text-neutral-400"}`}>
+                  2. Shipping Method
+                </h2>
+                {activeStep > 2 && (
+                  <button onClick={() => setActiveStep(2)} className="text-[9px] font-bold tracking-[0.2em] uppercase text-neutral-900 hover:text-neutral-500 transition-colors border-b border-neutral-900 pb-0.5">Edit</button>
+                )}
+              </div>
+
+              {activeStep === 2 && (
+                <div className="p-6 sm:p-8 pt-0 space-y-4 animate-fade-in-up">
+                  
+                  <label className={`block border p-5 cursor-pointer transition-all duration-300 ${shippingMethod === 'standard' ? 'border-neutral-900 bg-white shadow-sm' : 'border-neutral-200 bg-white/50 hover:border-neutral-400'}`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <input type="radio" name="shipping" checked={shippingMethod === 'standard'} onChange={() => setShippingMethod('standard')} className="w-4 h-4 text-neutral-900 focus:ring-neutral-900 accent-neutral-900" />
+                        <div>
+                          <p className="text-xs font-bold text-neutral-900 uppercase tracking-widest">Standard Delivery</p>
+                          <p className="text-[10px] text-neutral-500 mt-1 uppercase tracking-widest">3-5 Business Days</p>
+                        </div>
+                      </div>
+                      <span className="text-sm font-light tracking-wide text-neutral-900">Complimentary</span>
+                    </div>
+                  </label>
+
+                  <label className={`block border p-5 cursor-pointer transition-all duration-300 ${shippingMethod === 'express' ? 'border-neutral-900 bg-white shadow-sm' : 'border-neutral-200 bg-white/50 hover:border-neutral-400'}`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <input type="radio" name="shipping" checked={shippingMethod === 'express'} onChange={() => setShippingMethod('express')} className="w-4 h-4 text-neutral-900 focus:ring-neutral-900 accent-neutral-900" />
+                        <div>
+                          <p className="text-xs font-bold text-neutral-900 uppercase tracking-widest">Express Priority</p>
+                          <p className="text-[10px] text-neutral-500 mt-1 uppercase tracking-widest">1-2 Business Days</p>
+                        </div>
+                      </div>
+                      <span className="text-sm font-medium tracking-wide text-neutral-900">₹500</span>
+                    </div>
+                  </label>
+
+                  <button onClick={handleContinueToPayment} className="mt-8 w-full md:w-auto bg-neutral-950 text-white px-10 py-4.5 text-[10px] font-bold uppercase tracking-[0.25em] hover:bg-neutral-800 transition-all duration-300 active:scale-[0.98]">
+                    Continue to Payment
+                  </button>
+                </div>
+              )}
+              {activeStep > 2 && (
+                <div className="px-6 sm:px-8 pb-8 text-sm text-neutral-500 font-light tracking-wide">
+                  {shippingMethod === 'standard' ? 'Standard Delivery (Complimentary)' : 'Express Priority (₹500)'}
+                </div>
+              )}
+            </div>
+
+            {/* ================= STEP 3: PAYMENT ================= */}
+            <div className={`border transition-all duration-500 ${activeStep === 3 ? "border-neutral-900 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.1)]" : "border-neutral-200 bg-neutral-50"}`}>
+              <div className="p-6 sm:p-8">
+                <h2 className={`text-[10px] font-bold tracking-[0.25em] uppercase transition-colors ${activeStep === 3 ? "text-neutral-900" : "text-neutral-400"}`}>
+                  3. Secure Payment
+                </h2>
+              </div>
+              
+              {activeStep === 3 && (
+                <div className="p-6 sm:p-8 pt-0 animate-fade-in-up">
+                  <p className="text-sm text-neutral-500 font-light tracking-wide leading-relaxed mb-8">
+                    Your transaction is encrypted and secure. Click below to open our trusted payment gateway.
+                  </p>
+                  
+                  <button
+                    onClick={handlePayment}
+                    disabled={loading}
+                    className={`w-full py-5 text-[10px] font-bold tracking-[0.25em] uppercase transition-all duration-300 active:scale-[0.98] flex justify-center items-center gap-3 ${
+                      loading ? "bg-neutral-200 text-neutral-400 cursor-wait" : "bg-neutral-950 text-white hover:bg-neutral-800 shadow-xl shadow-neutral-950/10"
+                    }`}
+                  >
+                    {loading ? (
+                      <svg className="animate-spin h-4 w-4 text-neutral-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    ) : (
+                      `Pay ₹${finalAmount.toLocaleString()}`
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+
+          </div>
+
+          {/* RIGHT COLUMN: STICKY ORDER SUMMARY */}
+          <div className="lg:col-span-5 relative">
+            <div className="sticky top-32 bg-neutral-50/50 border border-neutral-200 p-8 sm:p-10">
+              
+              <div className="flex justify-between items-center mb-8 border-b border-neutral-200 pb-4">
+                <h3 className="text-[10px] font-bold tracking-[0.25em] uppercase text-neutral-900">Order Summary</h3>
+                <Link to="/cart" className="text-[9px] font-bold tracking-[0.2em] uppercase text-neutral-400 hover:text-neutral-900 transition-colors border-b border-transparent hover:border-neutral-900 pb-0.5">Edit Bag</Link>
+              </div>
+
+              {/* Items List */}
+              <div className="space-y-6 mb-10 max-h-[40vh] overflow-y-auto pr-2 no-scrollbar border-b border-neutral-200 pb-8">
+                {cartItems.map((item, index) => (
+                  <div key={index} className="flex gap-5 group">
+                    <div className="w-20 h-28 bg-neutral-100 overflow-hidden shrink-0">
+                      {/* FIX: Using mainimage1 for consistency */}
+                      <img src={item.mainimage1 || item.image} alt={item.title} className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105" />
+                    </div>
+                    <div className="flex-1 flex flex-col justify-center">
+                      <p className="text-[8px] font-bold tracking-[0.25em] uppercase text-neutral-400 mb-1">{item.category || "Thread Theory"}</p>
+                      <h4 className="text-sm font-light tracking-wide text-neutral-900 leading-snug line-clamp-2">{item.title}</h4>
+                      <p className="text-[10px] text-neutral-500 uppercase tracking-[0.2em] mt-2">Size: <span className="font-bold text-neutral-900">{item.size}</span> | Qty: <span className="font-bold text-neutral-900">{item.qty}</span></p>
+                      <p className="text-sm text-neutral-900 font-medium tracking-wide mt-2">₹{(item.price * item.qty).toLocaleString()}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Coupon Logic */}
+              <div className="mb-10">
+                <div className="flex gap-0 border border-neutral-300 focus-within:border-neutral-900 transition-colors">
+                  <input type="text" value={couponCode} onChange={(e) => setCouponCode(e.target.value.toUpperCase())} placeholder="Discount Code" className="w-full bg-white py-3.5 px-4 text-[10px] font-bold tracking-[0.25em] uppercase text-neutral-900 focus:outline-none placeholder-neutral-400 rounded-none" />
+                  <button onClick={applyCoupon} className="bg-neutral-950 text-white px-8 text-[9px] font-bold tracking-[0.25em] uppercase hover:bg-neutral-800 transition-colors shrink-0">Apply</button>
+                </div>
+              </div>
+
+              {/* Price Breakdown */}
+              <dl className="space-y-4 text-sm font-light text-neutral-600 tracking-wide">
+                <div className="flex justify-between">
+                  <dt>Subtotal</dt>
+                  <dd className="text-neutral-900 font-medium">₹{totalAmount.toLocaleString()}</dd>
+                </div>
+                {discount > 0 && (
+                  <div className="flex justify-between text-neutral-900">
+                    <dt>Discount applied</dt>
+                    <dd className="font-medium">- ₹{discount.toLocaleString()}</dd>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <dt>Shipping</dt>
+                  <dd className="text-neutral-900 font-medium">{shippingCost === 0 ? "Complimentary" : `₹${shippingCost}`}</dd>
+                </div>
+                <div className="flex justify-between pt-6 border-t border-neutral-200 items-end mt-6">
+                  <dt className="text-xs font-bold tracking-[0.25em] uppercase text-neutral-900">Total Due</dt>
+                  <dd className="text-2xl font-light text-neutral-900 tracking-tight">₹{finalAmount.toLocaleString()}</dd>
+                </div>
+              </dl>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+      
+      {/* GLOBAL SCROLLBAR CSS */}
+      <style dangerouslySetInnerHTML={{__html: `
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .animate-fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      `}} />
+    </div>
+  );
+}
