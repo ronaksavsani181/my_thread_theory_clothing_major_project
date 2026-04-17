@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import api from "../../services/api";
 
-
-// Top luxury clothing brands with curated aesthetic images
 const STATIC_BRANDS = [
   { name: "H&M", image: "https://i.pinimg.com/736x/13/19/c0/1319c023694bb21a9f668796c6ea33b6.jpg?q=80&w=2000&auto=format&fit=crop" },
   { name: "Lacoste", image: "https://i.pinimg.com/736x/29/f6/49/29f6492fa8560ea4c74dcb474d1cc9cf.jpg?q=80&w=1800&auto=format&fit=crop" },
@@ -26,16 +25,14 @@ export default function Brand() {
     const fetchDynamicBrands = async () => {
       try {
         const res = await api.get("/products");
-        // Extract exact unique brands from DB, ignore empty ones
         const dbBrands = [...new Set(res.data.map(p => p.brand).filter(Boolean))];
 
-        // Merge DB brands with Static Images, avoid duplicates
         const mergedBrands = dbBrands.map(dbBrandName => {
           const staticMatch = STATIC_BRANDS.find(
             sb => sb.name.toLowerCase() === dbBrandName.trim().toLowerCase()
           );
           return {
-            name: dbBrandName.trim(), // Preserves DB formatting
+            name: dbBrandName.trim(), 
             image: staticMatch ? staticMatch.image : FALLBACK_IMAGE
           };
         });
@@ -51,22 +48,22 @@ export default function Brand() {
   }, []);
 
   return (
-    <section className="bg-white py-24 sm:py-32 border-b border-neutral-200 overflow-hidden font-sans">
-      <div className="text-center mb-16 px-6 flex flex-col items-center">
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-400 mb-4">
+    <section className="bg-white py-20 sm:py-28 lg:py-32 border-b border-neutral-100 overflow-hidden font-sans">
+      <div className="text-center mb-12 sm:mb-16 px-5 sm:px-8 flex flex-col items-center">
+        <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-400 mb-3 sm:mb-4">
           Curated Archive
         </p>
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-widest text-neutral-900 uppercase">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light tracking-widest text-neutral-900 uppercase">
           The Designer Edit
         </h2>
-        <div className="w-12 h-[1px] bg-neutral-900 mt-8"></div>
+        <div className="w-10 sm:w-12 h-[1px] bg-neutral-900 mt-6 sm:mt-8"></div>
       </div>
 
-      <div className="relative w-full flex overflow-hidden group">
-        <div className="absolute left-0 top-0 bottom-0 w-24 md:w-48 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
-        <div className="absolute right-0 top-0 bottom-0 w-24 md:w-48 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
+      <div className="relative w-full max-w-[120rem] mx-auto flex overflow-hidden group">
+        <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-24 md:w-48 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
+        <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-24 md:w-48 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
 
-        <div className="flex gap-12 md:gap-20 items-center px-8 pt-6 w-max animate-[marquee_35s_linear_infinite] group-hover:[animation-play-state:paused]">
+        <div className="flex gap-8 sm:gap-12 md:gap-20 items-center px-4 sm:px-8 pt-4 sm:pt-6 w-max animate-[marquee_40s_linear_infinite] group-hover:[animation-play-state:paused]">
           {displayBrands.map((brand, index) => (
             <BrandItem key={index} brand={brand} />
           ))}
@@ -91,16 +88,16 @@ function BrandItem({ brand }) {
   return (
     <Link
       to={`/products?brand=${encodeURIComponent(brand.name)}`}
-      className="brand-item group/brand flex flex-col items-center gap-6 focus:outline-none"
+      className="brand-item group/brand flex flex-col items-center gap-4 sm:gap-6 focus:outline-none"
     >
-      <div className="h-28 w-28 md:h-40 md:w-40 rounded-full overflow-hidden border border-neutral-200 bg-neutral-50 transition-all duration-700 ease-[0.25,1,0.5,1] group-hover/brand:border-neutral-900 group-hover/brand:shadow-[0_15px_30px_-10px_rgba(0,0,0,0.15)] group-hover/brand:-translate-y-2">
+      <div className="h-24 w-24 sm:h-28 sm:w-28 md:h-36 md:w-36 lg:h-40 lg:w-40 rounded-full overflow-hidden border border-neutral-100 bg-neutral-50 transition-all duration-700 ease-[0.25,1,0.5,1] group-hover/brand:border-neutral-900 group-hover/brand:shadow-[0_15px_30px_-10px_rgba(0,0,0,0.15)] group-hover/brand:-translate-y-2">
         <img
           src={brand.image}
           alt={brand.name}
-          className="h-full w-full object-cover transition-all duration-700 ease-[0.25,1,0.5,1] grayscale opacity-80 group-hover/brand:grayscale-0 group-hover/brand:opacity-100 group-hover/brand:scale-110"
+          className="h-full w-full object-cover transition-all duration-700 ease-[0.25,1,0.5,1] grayscale opacity-70 group-hover/brand:grayscale-0 group-hover/brand:opacity-100 group-hover/brand:scale-110"
         />
       </div>
-      <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.25em] text-neutral-400 transition-colors duration-500 group-hover/brand:text-neutral-900">
+      <span className="text-[9px] sm:text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em] text-neutral-400 transition-colors duration-500 group-hover/brand:text-neutral-900 whitespace-nowrap">
         {brand.name}
       </span>
     </Link>

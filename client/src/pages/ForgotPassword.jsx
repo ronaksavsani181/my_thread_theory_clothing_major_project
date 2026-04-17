@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import { AlertTriangle, CheckCircle2, X, ArrowLeft, Mail } from "lucide-react";
 import api from "../services/api";
 
 export default function ForgotPassword() {
@@ -13,20 +14,16 @@ export default function ForgotPassword() {
   const [isSent, setIsSent] = useState(false);
   const [demoLink, setDemoLink] = useState(""); 
   
-  // 🟢 VALIDATION ERRORS STATE
+  // 🟢 VALIDATION ERRORS & TOAST STATE
   const [errors, setErrors] = useState({});
   const [toast, setToast] = useState({ show: false, message: "", type: "error" });
+  const timerRef = useRef(null);
 
   const showToast = (message, type = "error") => {
+    if (timerRef.current) clearTimeout(timerRef.current);
     setToast({ show: true, message, type });
+    timerRef.current = setTimeout(() => setToast({ ...toast, show: false }), 4000);
   };
-
-  useEffect(() => {
-    if (toast.show) {
-      const timer = setTimeout(() => setToast({ ...toast, show: false }), 4000);
-      return () => clearTimeout(timer);
-    }
-  }, [toast.show]);
 
   // 🟢 STRICT INLINE VALIDATION
   const validateForm = () => {
@@ -67,84 +64,139 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="bg-neutral-50 min-h-[100dvh] flex flex-col items-center justify-center font-sans px-6 relative selection:bg-neutral-200 overflow-hidden">
+    <div className="bg-neutral-50 min-h-[100dvh] flex flex-col items-center justify-center font-sans px-5 sm:px-6 relative selection:bg-neutral-200 overflow-hidden">
       
-      {/* 🟢 TOAST NOTIFICATION */}
+      {/* =========================================
+          🌟 PREMIUM CENTERED NOTIFICATION POPUP
+          ========================================= */}
       <div 
-        className={`fixed left-1/2 top-8 z-[100] flex w-[90%] max-w-sm -translate-x-1/2 transform items-center gap-2.5 rounded-sm p-3 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.15)] backdrop-blur-xl transition-all duration-500 ease-[0.25,1,0.5,1] ${
+        className={`fixed top-16 sm:top-24 left-1/2 z-[100] flex w-[90%] sm:w-auto min-w-[320px] max-w-md -translate-x-1/2 transform items-center gap-3.5 rounded-2xl p-4 sm:p-5 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.2)] backdrop-blur-2xl transition-all duration-500 ease-[0.25,1,0.5,1] border ${
           toast.show ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0 pointer-events-none"
-        } ${toast.type === "error" ? "bg-white/95 border-l-3 border-red-500 text-neutral-800" : "bg-neutral-950/95 text-white"}`}
+        } ${
+          toast.type === "error" ? "bg-white/90 border-red-100 text-neutral-900" : "bg-neutral-950/95 border-neutral-800 text-white"
+        }`}
       >
-        <p className={`text-[10px] font-medium tracking-wide ${toast.type === "error" ? "text-neutral-700" : "text-neutral-200"}`}>
-          {toast.message}
-        </p>
+        <div className="shrink-0">
+          {toast.type === "error" ? (
+            <AlertTriangle className="h-5 w-5 text-red-500 stroke-[2]" />
+          ) : (
+            <CheckCircle2 className="h-5 w-5 text-emerald-400 stroke-[2]" />
+          )}
+        </div>
+        <div className="flex-1">
+          <p className={`text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] ${toast.type === "error" ? "text-red-500" : "text-neutral-400"} mb-0.5`}>
+            {toast.type === "error" ? "Alert" : "Success"}
+          </p>
+          <p className={`text-xs sm:text-sm font-medium tracking-wide ${toast.type === "error" ? "text-neutral-900" : "text-neutral-200"}`}>
+            {toast.message}
+          </p>
+        </div>
+        <button onClick={() => {
+            setToast({ ...toast, show: false });
+            if (timerRef.current) clearTimeout(timerRef.current);
+          }} 
+          className="shrink-0 p-2 -mr-2 hover:scale-110 transition-transform active:scale-95"
+        >
+          <X className={`h-4 w-4 stroke-[2] ${toast.type === "error" ? "text-neutral-400" : "text-neutral-400"}`} />
+        </button>
       </div>
 
-      <div className="w-full max-w-[340px] bg-white p-8 shadow-xl border border-neutral-100 my-auto">
+      {/* =========================================
+          MAIN AUTH CARD
+          ========================================= */}
+      <div className="w-full max-w-md bg-white p-8 sm:p-12 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] border border-neutral-100 my-auto opacity-0 animate-[fade-in-up_0.8s_ease-out_forwards]">
         
-        <Link to="/login" className="inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.2em] text-neutral-400 hover:text-neutral-900 transition-colors mb-6">
-          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
+        <Link to="/login" className="inline-flex items-center gap-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400 hover:text-neutral-900 transition-colors mb-8 sm:mb-10 group w-max border-b border-transparent hover:border-neutral-900 pb-0.5">
+          <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 stroke-[1.5] transition-transform group-hover:-translate-x-1" />
           Back to Login
         </Link>
 
-        <div className="mb-6">
-          <h1 className="text-2xl font-light tracking-wide uppercase text-neutral-900 mb-1.5">
-            Reset Password
-          </h1>
-          <p className="text-[9px] font-bold tracking-[0.2em] uppercase text-neutral-400 leading-relaxed">
-            Enter your email to receive recovery instructions.
-          </p>
-        </div>
-
         {!isSent ? (
-          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-            
-            {/* EMAIL INPUT WITH VALIDATION */}
-            <div className="relative group pt-1">
-              <input 
-                type="email" id="email" placeholder=" " value={email} 
-                onChange={(e) => { setEmail(e.target.value); setErrors({...errors, email: ""}); }} 
-                required 
-                className={`peer block w-full rounded-none border-b bg-transparent px-0 py-2 text-xs font-light text-neutral-900 transition-all focus:outline-none focus:ring-0 ${errors.email ? 'border-red-500 focus:border-red-500' : 'border-neutral-300 focus:border-neutral-900'}`}
-              />
-              <label 
-                htmlFor="email" 
-                className={`absolute left-0 top-2 text-[9px] font-bold uppercase tracking-[0.2em] transition-all duration-300 peer-focus:-translate-y-5 peer-focus:text-[7.5px] peer-[:not(:placeholder-shown)]:-translate-y-5 peer-[:not(:placeholder-shown)]:text-[7.5px] ${errors.email ? 'text-red-500 peer-focus:text-red-500' : 'text-neutral-400 peer-focus:text-neutral-900'}`}
-              >
-                Email Address
-              </label>
-              {errors.email && <span className="text-red-500 text-[8px] font-bold uppercase tracking-wider block mt-1.5">{errors.email}</span>}
+          <>
+            <div className="mb-8 sm:mb-10">
+              <h1 className="text-2xl sm:text-3xl font-light tracking-wide uppercase text-neutral-900 mb-2 sm:mb-3">
+                Reset Password
+              </h1>
+              <p className="text-[9px] sm:text-[10px] font-bold tracking-[0.2em] uppercase text-neutral-400 leading-relaxed">
+                Enter your email to receive recovery instructions.
+              </p>
             </div>
 
-            <button 
-              type="submit" disabled={loading}
-              className={`mt-8 relative w-full flex items-center justify-center px-4 py-3.5 text-[9px] font-bold tracking-[0.25em] uppercase text-white transition-all active:scale-[0.98] ${
-                loading ? "bg-neutral-400 cursor-not-allowed" : "bg-neutral-950 hover:bg-neutral-800"
-              }`}
-            >
-              {loading ? "Sending..." : "Send Recovery Link"}
-            </button>
-          </form>
+            <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8" noValidate>
+              
+              {/* EMAIL INPUT WITH FLOATING LABEL */}
+              <div className="relative group pt-2">
+                <input 
+                  type="email" id="email" placeholder=" " value={email} 
+                  onChange={(e) => { setEmail(e.target.value); setErrors({...errors, email: ""}); }} 
+                  required 
+                  className={`peer w-full bg-transparent border-b py-2 sm:py-2.5 text-sm sm:text-base font-light text-neutral-900 focus:outline-none rounded-none transition-colors ${errors.email ? 'border-red-500' : 'border-neutral-300 focus:border-neutral-900'}`}
+                />
+                <label 
+                  htmlFor="email" 
+                  className={`absolute left-0 top-3 sm:top-3.5 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] transition-all duration-300 peer-focus:-translate-y-6 peer-focus:text-[8px] sm:peer-focus:text-[9px] peer-[:not(:placeholder-shown)]:-translate-y-6 peer-[:not(:placeholder-shown)]:text-[8px] sm:peer-[:not(:placeholder-shown)]:text-[9px] ${errors.email ? 'text-red-500 peer-focus:text-red-500' : 'text-neutral-400 peer-focus:text-neutral-900 peer-[:not(:placeholder-shown)]:text-neutral-900'}`}
+                >
+                  Email Address *
+                </label>
+                {errors.email && <span className="text-red-500 text-[8px] sm:text-[9px] font-bold uppercase tracking-widest block mt-2">{errors.email}</span>}
+              </div>
+
+              {/* PREMIUM SUBMIT BUTTON */}
+              <button 
+                type="submit" disabled={loading}
+                className="group/btn relative overflow-hidden w-full border border-neutral-950 bg-neutral-950 text-white py-4 sm:py-4.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.25em] transition-all duration-500 hover:text-white active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed mt-4"
+              >
+                <span className="relative z-10 transition-colors duration-500 flex items-center justify-center gap-2">
+                  {loading ? (
+                    <>
+                      <svg className="animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Transmitting...
+                    </>
+                  ) : "Send Recovery Link"}
+                </span>
+                <div className="absolute inset-0 h-full w-full scale-x-0 bg-neutral-800 transition-transform duration-500 ease-[0.25,1,0.5,1] group-hover/btn:scale-x-100 origin-left"></div>
+              </button>
+            </form>
+          </>
         ) : (
-          <div className="text-center animate-fade-in">
-            <div className="w-12 h-12 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
-               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+          /* =========================================
+             SUCCESS STATE
+             ========================================= */
+          <div className="text-center animate-[fade-in-up_0.6s_ease-out_forwards] py-4">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-50 border border-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 sm:mb-8">
+               <Mail className="w-8 h-8 sm:w-10 sm:h-10 stroke-[1.5]" />
             </div>
-            <p className="text-xs text-neutral-600 font-light mb-6">If an account exists for <span className="font-medium text-neutral-900">{email}</span>, a recovery link has been generated.</p>
+            <h2 className="text-xl sm:text-2xl font-light tracking-wide uppercase text-neutral-900 mb-3">Check Your Inbox</h2>
+            <p className="text-xs sm:text-sm text-neutral-500 font-light mb-8 sm:mb-10 leading-relaxed px-2">
+              If an account exists for <br/><span className="font-medium text-neutral-900">{email}</span><br/> a recovery link has been sent.
+            </p>
             
             {/* 🟢 DEMO BYPASS: Show link directly for local testing without email setup */}
             {demoLink && (
-              <div className="bg-neutral-100 p-4 border border-neutral-200 mt-6">
-                <p className="text-[8px] font-bold tracking-widest uppercase text-neutral-500 mb-2">Development Mode bypass</p>
-                <a href={demoLink} className="text-[10px] text-neutral-900 font-bold uppercase underline break-all">Click here to reset</a>
+              <div className="bg-neutral-50 p-5 sm:p-6 border border-neutral-200 mt-4 rounded-sm text-left">
+                <p className="text-[8px] sm:text-[9px] font-bold tracking-[0.25em] uppercase text-neutral-400 mb-3 flex items-center gap-2">
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-500 stroke-[2]" />
+                  Dev Mode Bypass
+                </p>
+                <a href={demoLink} className="text-[9px] sm:text-[10px] text-neutral-900 font-bold uppercase tracking-widest border-b border-neutral-900 pb-0.5 break-all hover:text-neutral-500 transition-colors leading-relaxed inline-block">
+                  Click here to reset password
+                </a>
               </div>
             )}
           </div>
         )}
 
       </div>
+
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes fade-in-up {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}} />
     </div>
   );
 }
