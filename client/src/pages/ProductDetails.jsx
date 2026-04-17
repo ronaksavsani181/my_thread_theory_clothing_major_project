@@ -7,7 +7,7 @@ import { useWishlist } from "../context/useWishlist";
 // 🌟 FIX: Added AlertTriangle and CheckCircle2 to the imports
 import { Star, Truck, ShieldCheck, Heart, X, Ruler, ThumbsUp, User, ArrowRight, ChevronRight, ChevronLeft, AlertTriangle, CheckCircle2 } from "lucide-react";
 import VisualTryOnButton from "../components/VisualTryOnButton.jsx";
-import TryOnModal from "../components/VisualTryOn/TryOnModal.jsx";
+import TryOnModal from "../components/TempFolder/TryOnModal.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 
 export default function ProductDetails() {
