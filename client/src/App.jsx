@@ -3,6 +3,9 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/layout/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+// 🌟 THE NEW GLOBAL SCROLL COMPONENT
+import ScrollToTop from "./components/ScrollToTop";
+
 // Consumer Pages
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -46,6 +49,9 @@ const AppContent = () => {
 
   return (
     <>
+      {/* 🌟 SILENT GLOBAL SCROLL WATCHER: Forces every page to load at the very top */}
+      <ScrollToTop />
+
       {/* 🟢 CONSUMER NAVBAR: Strictly hidden on Admin routes */}
       {!isAdminRoute && <Navbar />}
 
