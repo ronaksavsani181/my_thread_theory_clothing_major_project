@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { SlidersHorizontal, X, ChevronDown } from "lucide-react";
 import api from "../services/api";
 import ProductCard from "../components/ProductCard";
+import ProductCardSkeleton from "../components/ProductCardSkeleton"; // 🌟 IMPORTED SKELETON
 
 // 🌟 TOP LUXURY BRANDS WITH CURATED AESTHETIC IMAGES
 const STATIC_BRANDS = [
@@ -108,12 +109,12 @@ export default function Products() {
         name: dbBrandName,
         image: staticMatch ? staticMatch.image : FALLBACK_IMAGE
       };
-    }).sort((a, b) => a.name.localeCompare(b.name)); // STRICT A-Z
+    }).sort((a, b) => a.name.localeCompare(b.name)); 
   }, [allProducts]);
 
   const availableCategories = useMemo(() => {
     const cats = new Set(allProducts.map(p => p.category?.trim()).filter(Boolean));
-    return Array.from(cats).sort((a, b) => a.localeCompare(b)); // STRICT A-Z
+    return Array.from(cats).sort((a, b) => a.localeCompare(b)); 
   }, [allProducts]);
 
   const availableSizes = useMemo(() => {
@@ -123,7 +124,6 @@ export default function Products() {
         product.sizesAvailable.forEach(s => sizesSet.add(s.trim().toUpperCase()));
       }
     });
-    // LOGICAL APPAREL SORTING (Not strictly A-Z)
     const sizeOrder = { 'XXS': 1, 'XS': 2, 'S': 3, 'M': 4, 'L': 5, 'XL': 6, 'XXL': 7 };
     return Array.from(sizesSet).sort((a, b) => {
       if (sizeOrder[a] && sizeOrder[b]) return sizeOrder[a] - sizeOrder[b];
@@ -207,7 +207,7 @@ export default function Products() {
   };
 
   // ======================================================================
-  // 🌟 REUSABLE FILTER UI COMPONENT (Used in both Mobile Drawer & Desktop Sidebar)
+  // 🌟 REUSABLE FILTER UI COMPONENT
   // ======================================================================
   const FilterContent = (
     <div className="space-y-10">
@@ -229,7 +229,7 @@ export default function Products() {
         </div>
       </div>
 
-      {/* DYNAMIC BRANDS (A-Z) */}
+      {/* DYNAMIC BRANDS */}
       {availableBrands.length > 0 && (
         <div>
           <h3 className="text-[10px] font-bold tracking-[0.25em] uppercase border-b border-neutral-100 pb-3 mb-4">Designer Brands</h3>
@@ -252,7 +252,7 @@ export default function Products() {
         </div>
       )}
 
-      {/* DYNAMIC CATEGORY (A-Z) */}
+      {/* DYNAMIC CATEGORY */}
       {availableCategories.length > 0 && (
         <div>
           <h3 className="text-[10px] font-bold tracking-[0.25em] uppercase border-b border-neutral-100 pb-3 mb-4">Category</h3>
@@ -326,36 +326,22 @@ export default function Products() {
     </div>
   );
 
-  // ======================================================================
-
   return (
     <div className={`bg-white min-h-screen font-sans selection:bg-neutral-200 text-neutral-900 transition-opacity duration-1000 ${isPageLoaded ? 'opacity-100' : 'opacity-0'}`}>
       
-      {/* =========================================
-          📱 MOBILE SLIDING FILTER DRAWER
-          ========================================= */}
+      {/* 📱 MOBILE SLIDING FILTER DRAWER */}
       <div className={`fixed inset-0 z-[70] transition-opacity duration-500 md:hidden ${isFilterDrawerOpen ? "opacity-100 visible" : "opacity-0 invisible"}`}>
-        
-        {/* Dark Backdrop */}
         <div className="absolute inset-0 bg-neutral-950/40 backdrop-blur-sm transition-opacity" onClick={() => setIsFilterDrawerOpen(false)}></div>
-        
-        {/* Drawer Panel */}
         <div className={`absolute right-0 top-0 h-full w-[85%] max-w-[380px] bg-white shadow-[-\-20px_0_40px_rgba(0,0,0,0.15)] transform transition-transform duration-500 ease-[0.25,1,0.5,1] flex flex-col ${isFilterDrawerOpen ? "translate-x-0" : "translate-x-full"}`}>
-          
-          {/* Drawer Header */}
           <div className="flex items-center justify-between px-6 py-6 border-b border-neutral-100 shrink-0">
             <h2 className="text-[10px] font-bold tracking-[0.25em] uppercase text-neutral-900">Refine & Sort</h2>
             <button onClick={() => setIsFilterDrawerOpen(false)} className="p-2 -mr-2 text-neutral-400 hover:text-neutral-900 transition-transform active:scale-95">
               <X className="w-5 h-5 stroke-[1.5]" />
             </button>
           </div>
-
-          {/* Drawer Scrollable Content */}
           <div className="flex-1 overflow-y-auto no-scrollbar px-6 py-8">
             {FilterContent}
           </div>
-
-          {/* Drawer Footer Actions */}
           <div className="p-6 border-t border-neutral-100 bg-white shrink-0 flex gap-4">
             <button onClick={clearFilters} className="flex-1 border border-neutral-200 text-neutral-500 py-4 text-[9px] font-bold uppercase tracking-[0.2em] hover:bg-neutral-100 hover:text-neutral-900 transition-colors">
               Clear All
@@ -364,16 +350,12 @@ export default function Products() {
               Show Results
             </button>
           </div>
-
         </div>
       </div>
 
-      {/* =========================================
-          MAIN PAGE CONTENT
-          ========================================= */}
+      {/* MAIN PAGE CONTENT */}
       <div className="max-w-[100rem] mx-auto px-5 sm:px-8 lg:px-12 py-24 sm:py-32 lg:py-40">
         
-        {/* HEADER SECTION */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-12 border-b border-neutral-200 pb-8 animate-[fade-in-up_0.8s_ease-out_forwards]">
           <div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-light tracking-wide uppercase text-neutral-900">
@@ -383,8 +365,6 @@ export default function Products() {
               {brandFilter ? `${brandFilter} Edit` : category ? `${category} Edit` : "Curated Essentials"} • {displayedProducts.length} Pieces
             </p>
           </div>
-
-          {/* MOBILE FILTER TRIGGER BUTTON */}
           <button 
             onClick={() => setIsFilterDrawerOpen(true)}
             className="md:hidden mt-8 w-full flex items-center justify-between border border-neutral-200 bg-neutral-50 px-5 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-900 hover:text-neutral-500 transition-colors group active:bg-neutral-100"
@@ -394,25 +374,21 @@ export default function Products() {
           </button>
         </div>
 
-        {/* =========================================
-            SPLIT LAYOUT (DESKTOP)
-            ========================================= */}
+        {/* SPLIT LAYOUT (DESKTOP) */}
         <div className="flex flex-col md:flex-row gap-10 lg:gap-16 items-start">
-          
-          {/* 💻 DESKTOP LEFT SIDEBAR */}
           <aside className="hidden md:block w-56 lg:w-64 shrink-0 animate-[fade-in-up_0.8s_ease-out_0.2s_forwards] opacity-0">
             <div className="sticky top-32 pb-20">
               {FilterContent}
             </div>
           </aside>
 
-          {/* RIGHT SIDE: PRODUCT GRID */}
           <main className="flex-1 w-full">
             {loading ? (
-              <div className="h-[50vh] flex flex-col items-center justify-center">
-                <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-400 animate-pulse">
-                  Curating Collection...
-                </p>
+              /* 🌟 SKELETON UI INTEGRATION 🌟 */
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-3 gap-y-12 sm:gap-x-6 sm:gap-y-16 lg:gap-x-8 lg:gap-y-20">
+                {Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => (
+                  <ProductCardSkeleton key={index} />
+                ))}
               </div>
             ) : paginatedProducts.length === 0 ? (
               <div className="h-[40vh] sm:h-[50vh] flex flex-col items-center justify-center text-center px-4 bg-neutral-50/50 border border-neutral-100 opacity-0 animate-[fade-in-up_0.6s_ease-out_forwards]">
@@ -424,7 +400,6 @@ export default function Products() {
               </div>
             ) : (
               <>
-                {/* 🌟 STAGGERED ENTRY GRID */}
                 <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-3 gap-y-12 sm:gap-x-6 sm:gap-y-16 lg:gap-x-8 lg:gap-y-20">
                   {paginatedProducts.map((p, index) => (
                     <div 
@@ -437,43 +412,24 @@ export default function Products() {
                   ))}
                 </div>
 
-                {/* 📄 HIGH-END PAGINATION UI */}
+                {/* PAGINATION UI */}
                 {totalPages > 1 && (
                   <div className="flex flex-col items-center justify-center space-y-6 mt-20 sm:mt-24 pt-10 sm:pt-12 border-t border-neutral-200 opacity-0 animate-[fade-in-up_0.8s_ease-out_1s_forwards]">
                     <p className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.25em] text-neutral-400">
                       Page {currentPage} of {totalPages}
                     </p>
-                    
                     <div className="flex items-center space-x-4 sm:space-x-6">
-                      <button
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                        className="px-4 py-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500 border border-transparent disabled:opacity-20 disabled:cursor-not-allowed hover:text-neutral-900 transition-colors"
-                      >
+                      <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className="px-4 py-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500 border border-transparent disabled:opacity-20 disabled:cursor-not-allowed hover:text-neutral-900 transition-colors">
                         &larr; Prev
                       </button>
-
                       <div className="flex space-x-1.5 sm:space-x-2">
                         {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                          <button
-                            key={page}
-                            onClick={() => handlePageChange(page)}
-                            className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-[9px] sm:text-[10px] font-bold transition-all ${
-                              currentPage === page
-                                ? "bg-neutral-900 text-white border border-neutral-900"
-                                : "bg-transparent text-neutral-500 border border-transparent hover:border-neutral-300 hover:text-neutral-900"
-                            }`}
-                          >
+                          <button key={page} onClick={() => handlePageChange(page)} className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-[9px] sm:text-[10px] font-bold transition-all ${currentPage === page ? "bg-neutral-900 text-white border border-neutral-900" : "bg-transparent text-neutral-500 border border-transparent hover:border-neutral-300 hover:text-neutral-900"}`}>
                             {page}
                           </button>
                         ))}
                       </div>
-
-                      <button
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                        className="px-4 py-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500 border border-transparent disabled:opacity-20 disabled:cursor-not-allowed hover:text-neutral-900 transition-colors"
-                      >
+                      <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} className="px-4 py-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500 border border-transparent disabled:opacity-20 disabled:cursor-not-allowed hover:text-neutral-900 transition-colors">
                         Next &rarr;
                       </button>
                     </div>
@@ -482,18 +438,13 @@ export default function Products() {
               </>
             )}
           </main>
-
         </div>
       </div>
-      
-      {/* GLOBAL CSS FOR SCROLLBAR & ANIMATIONS */}
+
       <style dangerouslySetInnerHTML={{__html: `
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        @keyframes fade-in-up {
-          from { opacity: 0; transform: translateY(40px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fade-in-up { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
       `}} />
     </div>
   );
