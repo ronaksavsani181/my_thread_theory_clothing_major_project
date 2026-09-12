@@ -1,324 +1,387 @@
-# Thread Theory
+# 👕 Thread Theory
 
-> A modern clothing e-commerce platform with an immersive 3D Virtual Try-On experience.
+### E-Commerce Website of Clothing with 3D Virtual Try-On
 
-**Thread Theory** is an academic full-stack e-commerce project for clothing retail. The documented system combines the **MERN stack** with **WebGL/Three.js** and **MediaPipe computer vision** to create a responsive shopping experience with product discovery, authentication, cart and checkout workflows, administrative management, and a real-time 3D Virtual Try-On feature.
+[![Frontend](https://img.shields.io/badge/Frontend-React.js-61DAFB?logo=react&logoColor=111111)](https://react.dev/)
+[![UI](https://img.shields.io/badge/UI-Tailwind%20CSS-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Backend](https://img.shields.io/badge/Backend-Node.js-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![API](https://img.shields.io/badge/API-Express.js-000000?logo=express&logoColor=white)](https://expressjs.com/)
+[![Database](https://img.shields.io/badge/Database-MongoDB-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![3D](https://img.shields.io/badge/3D-Three.js-000000?logo=three.js&logoColor=white)](https://threejs.org/)
+[![AI](https://img.shields.io/badge/Computer%20Vision-MediaPipe-4285F4)](https://ai.google.dev/edge/mediapipe)
 
-[![React](https://img.shields.io/badge/Frontend-React.js-61DAFB?logo=react&logoColor=white)](https://react.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/UI-Tailwind%20CSS-38B2AC?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![Node.js](https://img.shields.io/badge/Backend-Node.js-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
-[![Express.js](https://img.shields.io/badge/API-Express.js-000000?logo=express&logoColor=white)](https://expressjs.com/)
-[![MongoDB](https://img.shields.io/badge/Database-MongoDB-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
-[![Three.js](https://img.shields.io/badge/3D-Three.js-black?logo=three.js)](https://threejs.org/)
-[![MediaPipe](https://img.shields.io/badge/AI-MediaPipe-blue)](https://ai.google.dev/edge/mediapipe/solutions/guide)
-
----
-
-## ✨ Why Thread Theory?
-
-Traditional clothing e-commerce depends heavily on static 2D images and sizing charts. Thread Theory is designed to make the shopping experience more interactive by bringing a virtual fitting-room concept into the browser.
-
-The core innovation is the **3D Virtual Try-On Engine**, which uses browser-based pose estimation and 3D rendering to place clothing models over the user's live camera view.
-
-### Key goals
-
-- 🛍️ Premium clothing shopping experience
-- 👕 Real-time 3D Virtual Try-On
-- 📦 Product, SKU, inventory, and order management
-- 🔐 Secure authentication and role-based administration
-- 📊 Admin analytics and operational monitoring
-- 📱 Responsive, mobile-first interface
-- ⚡ Optimized loading for heavy 3D assets
+> **Thread Theory** is a full-stack academic clothing e-commerce project that combines the MERN stack with WebGL/Three.js and browser-based computer vision to create an interactive shopping experience.
 
 ---
 
-## 🚀 Core Features
+## 📌 Project Overview
 
-### Customer Experience
+Thread Theory is designed to improve the traditional online clothing-shopping experience by combining a modern e-commerce storefront with an interactive **3D Virtual Try-On** feature.
 
-- User registration, login, logout, and profile management
-- Product browsing and detailed product pages
-- Filtering by category, size, color, fabric, and price
-- Wishlist management
-- Dynamic shopping cart
+The project documentation describes a platform built around:
+
+- Product discovery and catalog browsing
+- User registration and authentication
+- Shopping cart and checkout workflows
+- Wishlist, reviews, order history, and support
+- Admin product and inventory management
+- Order and fulfillment management
+- Business analytics
+- Real-time 3D Virtual Try-On using webcam-based pose estimation
+
+The project uses React.js and Tailwind CSS on the frontend, Node.js and Express.js on the backend, MongoDB for data storage, `@react-three/fiber` / `@react-three/drei` for 3D rendering, and `@mediapipe/tasks-vision` for computer-vision pose tracking.
+
+---
+
+## ✨ Main Highlights
+
+### 🛍️ Customer Side
+
+- Responsive clothing catalog
+- Product search and filtering
+- Category, size, color, fabric, and price filtering
+- Product details and sizing information
+- Wishlist
+- Shopping cart
 - Size and color variant selection
-- Secure checkout flow
-- Order history and shipment tracking
+- Checkout and payment workflow
+- Order history and tracking
 - Ratings and reviews
-- Customer support and return workflows
-- **3D Virtual Try-On** using webcam-based pose tracking
+- Customer support and returns
 
-### Virtual Try-On
+### 🕶️ 3D Virtual Try-On
 
-The documented implementation uses:
+The core innovation of Thread Theory is the browser-based Virtual Try-On experience.
 
-- `@mediapipe/tasks-vision`
-- `PoseLandmarker`
-- `FilesetResolver`
-- `@react-three/fiber`
-- `@react-three/drei`
-- `.glb` clothing assets
-- WebGL rendering
-- Real-time skeletal landmark calculations
+The documented architecture uses:
 
-The documentation specifies that pose processing is intended to run locally in the browser, while 3D models are retrieved from external GitHub raw URLs.
+```text
+Webcam
+   ↓
+MediaPipe PoseLandmarker
+   ↓
+Body / Pose Landmarks
+   ↓
+Position + Scale Calculations
+   ↓
+React Three Fiber
+   ↓
+3D .glb Clothing Model
+   ↓
+Interactive Virtual Try-On
+```
 
-### Admin / Staff
+The documentation describes pose processing as client-side and uses externally hosted `.glb` assets to keep the main application server lightweight.
 
-- Admin authentication and protected routes
-- Product CRUD operations
+### 🛠️ Admin / Staff Side
+
+- Admin authentication
+- Product CRUD
+- Product variant management
 - Size/color stock management
 - 3D `.glb` asset URL management
-- Inventory monitoring
-- Order processing
-- Shipment-status management
+- Order management
+- Shipment status updates
 - Customer management
 - Return/refund workflows
-- Sales and business analytics
+- Business analytics
 - Role-based Admin/Staff access
 
 ---
 
-## 🧩 Technology Stack
+# 🧱 Technology Stack
 
-| Layer | Technologies |
+| Layer | Technology |
 |---|---|
-| Frontend | React.js, JavaScript, Tailwind CSS |
-| Backend | Node.js, Express.js, CORS |
-| Database | MongoDB, Mongoose |
-| 3D Rendering | Three.js, `@react-three/fiber`, `@react-three/drei` |
+| Frontend | React.js |
+| Styling | Tailwind CSS |
+| Frontend Build Tool | Vite |
+| Backend Runtime | Node.js |
+| Backend Framework | Express.js |
+| Database | MongoDB |
+| ODM | Mongoose |
+| 3D Rendering | Three.js |
+| React 3D | `@react-three/fiber` |
+| 3D Utilities | `@react-three/drei` |
 | Computer Vision | `@mediapipe/tasks-vision` |
-| 3D Assets | `.glb` models via externally hosted URLs |
-| Development | Visual Studio Code, Vite |
+| Authentication | JWT |
+| Password Security | bcrypt |
+| API Security / Integration | CORS |
 | API Testing | Postman |
-| Database Tools | MongoDB Compass, MongoDB Atlas |
+| Development IDE | Visual Studio Code |
+| Database Tools | MongoDB Compass / MongoDB Atlas |
+| Deployment Configuration | Vercel configuration is present in the client |
 
 ---
 
-## 🏗️ High-Level Architecture
+# 📂 Actual Repository Structure
+
+This repository is organized with separate **client**, **server**, and **docs** areas:
 
 ```text
-┌───────────────────────────────────────────────┐
-│                 CUSTOMER                      │
-│  Browser / Mobile / Desktop                  │
-└───────────────────────┬───────────────────────┘
-                        │
-                        ▼
-┌───────────────────────────────────────────────┐
-│              REACT FRONTEND                   │
-│  UI + Tailwind + Cart + Auth + Catalog       │
-│                                               │
-│  ┌─────────────────┐   ┌───────────────────┐  │
-│  │ MediaPipe CV    │   │ Three.js / R3F    │  │
-│  │ Pose Landmarks  │──►│ 3D Virtual Try-On │  │
-│  └─────────────────┘   └───────────────────┘  │
-└───────────────────────┬───────────────────────┘
-                        │ REST API
-                        ▼
-┌───────────────────────────────────────────────┐
-│            NODE.JS + EXPRESS API              │
-│ Auth • Products • Cart • Orders • Admin       │
-│ JWT • bcrypt • CORS • Business Logic          │
-└───────────────────────┬───────────────────────┘
-                        │
-                        ▼
-┌───────────────────────────────────────────────┐
-│                  MONGODB                      │
-│ Users • Products • Variants • Orders • Data   │
-└───────────────────────────────────────────────┘
-```
-
----
-
-## 📁 Repository Organization
-
-A clean MERN repository can be organized like this:
-
-```text
-thread-theory/
+clothing project/
 │
-├── frontend/
-│   ├── src/
+├── client/
 │   ├── public/
-│   ├── package.json
-│   └── ...
-│
-├── backend/
 │   ├── src/
-│   ├── routes/
-│   ├── models/
-│   ├── controllers/
-│   ├── middleware/
+│   ├── .env
+│   ├── .gitignore
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package-lock.json
 │   ├── package.json
-│   └── ...
+│   ├── README.md
+│   ├── vercel.json
+│   └── vite.config.js
 │
 ├── docs/
+│   ├── MAJOR_PPT.pptx
 │   └── MAJOR_PROJECT_DOCUMENTATION.pdf
 │
-├── .gitignore
-├── README.md
-└── package.json
+├── server/
+│   ├── config/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── node_modules/
+│   ├── public/
+│   ├── routes/
+│   ├── utils/
+│   ├── .env
+│   ├── .gitignore
+│   ├── index.js
+│   ├── package-lock.json
+│   └── package.json
+│
+└── .gitignore
 ```
 
-> **Important:** Your actual folder names may differ. Keep the README synchronized with the real repository structure.
+### Important
+
+The root `.gitignore` applies to the complete project. It intentionally does **not** ignore the `docs/` directory, so your academic PPT/PDF documentation can be version-controlled.
 
 ---
 
-## 💻 Requirements
+# 🏗️ Application Architecture
 
-The project documentation specifies the following development environment:
-
-- Windows 10/11, macOS, or Linux
-- Node.js
-- MongoDB / MongoDB Atlas
-- Visual Studio Code
-- Modern browser with WebGL support
-- Postman for API testing
-- Webcam for the Virtual Try-On feature
-
-For smooth 3D rendering, the documentation recommends a development machine with approximately **16 GB RAM**, SSD storage, and hardware capable of WebGL rendering.
+```text
+                           THREAD THEORY
+                                │
+                ┌───────────────┴───────────────┐
+                │                               │
+          CUSTOMER WEB APP                 ADMIN / STAFF
+                │                               │
+                └───────────────┬───────────────┘
+                                │
+                                ▼
+                         REACT FRONTEND
+                                │
+                 ┌──────────────┼──────────────┐
+                 │              │              │
+              Tailwind       MediaPipe      Three.js
+                 │          Pose Tracking      │
+                 │              │              │
+                 └──────────────┼──────────────┘
+                                │
+                           REST API
+                                │
+                                ▼
+                       NODE.JS + EXPRESS
+                                │
+                ┌───────────────┼───────────────┐
+                │               │               │
+             Auth/JWT        Products         Orders
+                │               │               │
+                └───────────────┼───────────────┘
+                                │
+                                ▼
+                             MongoDB
+```
 
 ---
 
-## ⚙️ Local Setup
+# 🚀 Getting Started
 
-### 1. Clone the repository
+## 1. Clone the repository
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/YOUR-REPOSITORY.git
-cd YOUR-REPOSITORY
+git clone https://github.com/YOUR-USERNAME/thread-theory.git
+cd "clothing project"
 ```
 
-### 2. Install dependencies
+Replace the GitHub URL and folder name with your actual values.
 
-From the frontend directory:
+---
+
+## 2. Install Client Dependencies
 
 ```bash
-cd frontend
+cd client
 npm install
 ```
 
-From the backend directory:
+---
+
+## 3. Install Server Dependencies
+
+Open another terminal from the project root:
 
 ```bash
-cd ../backend
+cd server
 npm install
 ```
 
-### 3. Configure environment variables
+> Do not upload `node_modules/` to GitHub. The root `.gitignore` already ignores nested `node_modules` directories.
 
-Create the environment file expected by the backend and add your real local/cloud configuration.
+---
 
-Example pattern:
+# 🔐 Environment Variables
+
+The project currently contains `.env` files under both `client` and `server`.
+
+### Never push real `.env` files
+
+The root `.gitignore` blocks:
+
+```text
+client/.env
+server/.env
+```
+
+A safer repository should contain an example file such as:
+
+```text
+client/.env.example
+server/.env.example
+```
+
+with empty or placeholder values.
+
+For example:
 
 ```env
-MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_long_random_secret
-CLIENT_URL=http://localhost:5173
+MONGODB_URI=
+JWT_SECRET=
+CLIENT_URL=
 ```
 
-> Use the exact variable names already expected by your source code. Never commit real passwords, API keys, database credentials, or secret tokens.
-
-### 4. Start the backend
-
-```bash
-cd backend
-npm run dev
-```
-
-### 5. Start the frontend
-
-Open another terminal:
-
-```bash
-cd frontend
-npm run dev
-```
-
-Then open the local URL printed by Vite.
-
-> Your `package.json` scripts are the source of truth. If the project uses different scripts such as `npm start`, use the scripts defined in your repository.
+Use the **exact variable names required by your existing source code**.
 
 ---
 
-## 🔐 Security Notes
+# ▶️ Running the Project Locally
 
-Before pushing the project to GitHub:
+Because the frontend and backend are separate applications, run them independently.
 
-- Do **not** commit `.env` files containing secrets.
-- Do **not** commit passwords, API keys, database credentials, or private certificates.
-- Keep `node_modules/` out of Git.
-- Review staged files before every important commit.
-- Use protected admin routes and secure authentication.
-- Keep camera/pose processing local to the browser where required by the project design.
-- Use HTTPS in production when camera access is required.
+## Frontend
 
-Recommended check before commit:
+```bash
+cd client
+npm run dev
+```
+
+Vite will print the local development URL in the terminal.
+
+## Backend
+
+```bash
+cd server
+npm run dev
+```
+
+If the backend package does not define a `dev` script, open:
+
+```text
+server/package.json
+```
+
+and use the script defined under `"scripts"`.
+
+For example, a backend may use:
+
+```bash
+npm start
+```
+
+The `package.json` files in this repository are the source of truth for the exact commands.
+
+---
+
+# 🧪 Testing
+
+Recommended testing flow:
+
+```text
+Application Starts
+       ↓
+Homepage Loads
+       ↓
+Product Search
+       ↓
+Product Details
+       ↓
+Select Size / Color
+       ↓
+Add To Cart
+       ↓
+Login / Checkout
+       ↓
+Order Creation
+       ↓
+Admin Order Management
+       ↓
+Inventory Update
+```
+
+For the Virtual Try-On flow:
+
+```text
+Open Try-On
+     ↓
+Allow Camera
+     ↓
+Load MediaPipe
+     ↓
+Detect Pose
+     ↓
+Load 3D .glb Model
+     ↓
+Render Clothing
+     ↓
+Move / Test Tracking
+```
+
+---
+
+# 🔒 Security Checklist
+
+Before every GitHub push, verify:
+
+```text
+[ ] .env is not staged
+[ ] Passwords are not staged
+[ ] API keys are not staged
+[ ] MongoDB credentials are not staged
+[ ] node_modules/ is not staged
+[ ] Build output is not staged
+[ ] Private certificates are not staged
+[ ] Only intended files are staged
+```
+
+Run:
 
 ```bash
 git status
 git diff --cached
 ```
 
----
-
-## 🧪 Testing
-
-The project documentation covers:
-
-- Unit testing
-- Integration testing
-- End-to-end checkout testing
-- UI/UX and responsive testing
-- Security and JWT session testing
-- Admin route protection
-- Inventory synchronization
-- Return-management workflows
-- Performance/load testing
-
-A complete end-to-end flow should cover:
-
-```text
-Login
-  ↓
-Search Product
-  ↓
-Open Product
-  ↓
-Choose Size / Color
-  ↓
-Add to Cart
-  ↓
-Checkout
-  ↓
-Payment
-  ↓
-Order Creation
-  ↓
-Admin Order Processing
-```
+before committing important changes.
 
 ---
 
-## 🌐 Virtual Try-On Notes
+# 🌿 Recommended Git Workflow
 
-The Virtual Try-On experience depends on:
-
-1. A camera-enabled device
-2. A WebGL-capable browser
-3. Browser camera permission
-4. MediaPipe pose estimation
-5. A compatible 3D `.glb` clothing model
-
-The documented system uses pose landmarks to calculate body positioning and dynamically map the 3D clothing model to the user's movement.
-
-Heavy 3D assets are loaded asynchronously and the documentation describes loading-state handling through Drei utilities such as `useProgress` and `Html`.
-
----
-
-## 📦 GitHub Workflow
-
-For everyday development:
+For normal development:
 
 ```bash
 git status
@@ -326,39 +389,106 @@ git pull --rebase origin main
 
 # Make your changes
 
-git add README.md
+git status
+git add <file-or-folder>
 git diff --cached
-git commit -m "docs: improve project documentation"
-git push origin main
+git commit -m "feat: describe your change"
+git push
 ```
 
-For a normal code change:
+### Example
 
 ```bash
-git add <changed-file>
-git diff --cached
-git commit -m "feat: update product experience"
-git push origin main
+git add client/src/
+git commit -m "feat: improve storefront experience"
+git push
+```
+
+For documentation:
+
+```bash
+git add README.md docs/
+git commit -m "docs: update project documentation"
+git push
 ```
 
 ---
 
-## 🔭 Future Enhancements
+# 🧠 Beginner Git Cheat Sheet
 
-The project documentation identifies several future directions:
-
-- AR-based Virtual Try-On
-- AI-powered personal style recommendations
-- Multi-currency international checkout
-- BNPL / EMI payment support
-- Automated logistics tracking through shipping APIs
-- Progressive Web App (PWA) support and offline caching
+| Command | Purpose |
+|---|---|
+| `git status` | See current changes |
+| `git add <file>` | Stage a file |
+| `git add .` | Stage all non-ignored changes |
+| `git diff` | See unstaged changes |
+| `git diff --cached` | Review staged changes |
+| `git commit -m "message"` | Create a local commit |
+| `git push` | Upload commits to GitHub |
+| `git pull --rebase` | Update your local branch |
+| `git log --oneline` | View commit history |
+| `git remote -v` | See the connected GitHub repository |
+| `git branch --show-current` | See your current branch |
+| `git switch -c feature/name` | Create a feature branch |
 
 ---
 
-## 👨‍💻 Academic Project
+# 📦 First GitHub Push
 
-**Project:** Thread Theory – E-commerce Website of Clothes  
+If this folder is **not already a Git repository**:
+
+```bash
+git init -b main
+git add -A
+git diff --cached
+git commit -m "feat: initial Thread Theory project"
+git remote add origin https://github.com/YOUR-USERNAME/thread-theory.git
+git push -u origin main
+```
+
+If Git is already initialized:
+
+```bash
+git status
+git remote -v
+```
+
+Do not run `git init` or `git remote add origin` again when they are already configured correctly.
+
+---
+
+# 📝 Project Documentation
+
+The `docs/` directory contains the academic project material.
+
+Recommended layout:
+
+```text
+docs/
+├── MAJOR_PPT.pptx
+└── MAJOR_PROJECT_DOCUMENTATION.pdf
+```
+
+The documentation identifies the project as **Thread Theory — E-commerce Website of Clothes**, developed for BCA Semester VI during A.Y. 2025–26. It describes the MERN architecture, 3D rendering, MediaPipe computer vision, project modules, system design, testing, future scope, and conclusion.
+
+---
+
+# 🔮 Future Scope
+
+The project documentation identifies several future enhancement areas:
+
+- AR-based Virtual Try-On
+- AI-powered style recommendations
+- Multi-currency international checkout
+- BNPL / EMI payment support
+- Automated logistics tracking
+- Progressive Web App (PWA) support
+
+---
+
+# 🎓 Academic Information
+
+**Project Title:** Thread Theory – E-commerce Website of Clothes  
 **Course:** Bachelor of Computer Applications (BCA), Semester VI  
 **Academic Year:** 2025–26  
 **College:** SDJ International College, Vesu  
@@ -366,51 +496,41 @@ The project documentation identifies several future directions:
 
 ### Project Team
 
-- Bhingradia Fenil Nitinbhai
-- Savsani Ronak Anilbhai
-- Avaiya Nand Rajeshkumar
+- **Bhingradia Fenil Nitinbhai**
+- **Savsani Ronak Anilbhai**
+- **Avaiya Nand Rajeshkumar**
 
 ---
 
-## 📚 Project Documentation
+# 📚 References
 
-The complete academic project documentation contains the project description, environment requirements, system analysis, proposed system, data-flow diagrams, UML/use-case diagrams, database design, UI design, testing, future scope, conclusion, and references.
+The academic documentation references:
 
-Place the PDF inside:
+- React.js
+- Node.js
+- Express.js
+- MongoDB
+- Tailwind CSS
+- MDN Web Docs
+- JWT
+- bcryptjs
+- MediaPipe
+- Three.js / React Three Fiber
 
-```text
-docs/MAJOR_PROJECT_DOCUMENTATION.pdf
-```
-
-and keep this README at the root of the repository.
-
----
-
-## 🤝 Contributing
-
-For a student/academic project, keep changes organized:
-
-1. Create a feature branch.
-2. Make a focused change.
-3. Test locally.
-4. Review `git diff`.
-5. Commit with a clear message.
-6. Push the branch.
-7. Open a Pull Request when collaboration is required.
-
-Example:
-
-```bash
-git switch -c feature/virtual-try-on-improvement
-git add .
-git commit -m "feat: improve virtual try-on experience"
-git push -u origin feature/virtual-try-on-improvement
-```
+See the complete project documentation inside `docs/`.
 
 ---
 
-## ⭐ Project Vision
+# ⭐ Project Vision
 
-Thread Theory aims to combine the convenience of online clothing retail with the confidence of an interactive fitting-room experience.
+> **Thread Theory brings the confidence of an interactive fitting-room experience into modern online clothing commerce.**
 
-**Shop smarter. Visualize better. Experience fashion digitally.**
+The combination of a MERN e-commerce platform, real-time 3D visualization, and browser-based computer vision provides the foundation for an immersive digital fashion-shopping experience.
+
+---
+
+## 👨‍💻 Maintained as an Academic Project
+
+This repository contains the source code and documentation for the Thread Theory BCA major project.
+
+**Built with React + Node.js + Express + MongoDB + Three.js + MediaPipe.**
